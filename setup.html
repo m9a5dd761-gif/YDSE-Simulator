@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> <title> YDSE </title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YDSE | Virtual Physics Laboratory</title>
+
+<style>
+* { box-sizing:border-box }
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#09111f;
+  color:#eaf2ff;
+}
+header {
+  padding:25px 18px;
+  text-align:center;
+  background:#14233b;
+  border-bottom:1px solid #344966;
+}
+header h1 { margin:0 0 9px;font-size:27px }
+header p { margin:0;color:#afc2dc }
+.container { max-width:1200px;margin:auto;padding:20px }
+.panel {
+  background:#14233a;
+  border:1px solid #344966;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:19px;
+}
+h2 { font-size:19px;margin:0 0 15px }
+h3 { font-size:15px;color:#91dfff }
+.muted { color:#aebfd5;font-size:13px;line-height:1.6 }
+.setup-wrap {
+  background:#f3f7fc;
+  border-radius:10px;
+  overflow:hidden;
+}
+svg { width:100%;height:auto;display:block }
+.controls {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+.control {
+  background:#0d1b2e;
+  padding:15px;
+  border-radius:10px;
+}
+.control label {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:13px;
+  margin-bottom:12px;
+}
+.control strong { color:#70d8ff }
+input[type=range] {
+  width:100%;
+  accent-color:#38bdf8;
+}
+input[type=number] {
+  width:100%;
+  background:#172b43;
+  border:1px solid #405c7b;
+  border-radius:6px;
+  color:white;
+  padding:9px;
+  margin-top:9px;
+}
+.unit { color:#a8bbd4;font-size:11px }
+canvas {
+  display:block;
+  width:100%;
+  background:#020611;
+  border-radius:9px;
+  border:1px solid #3a506d;
+}
+#screen { height:260px }
+#graph { height:310px }
+.result-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(165px,1fr));
+  gap:12px;
+}
+.metric {
+  background:#0c1b2e;
+  border-radius:10px;
+  padding:16px;
+}
+.metric small { color:#afc2dc }
+.metric strong {
+  display:block;
+  color:#6ed6ff;
+  font-size:21px;
+  margin-top:9px;
+}
+.formula {
+  text-align:center;
+  font-size:24px;
+  color:#77dcff;
+  padding:16px;
+  overflow-wrap:anywhere;
+}
+button {
+  border:0;
+  border-radius:7px;
+  padding:11px 18px;
+  background:#168cc1;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+button:hover { background:#0873a5 }
+.note {
+  background:#0b1a2c;
+  border-left:3px solid #38bdf8;
+  padding:12px;
+  color:#bfd0e5;
+  font-size:13px;
+  line-height:1.6;
+}
+.legend {
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px;
+  font-size:12px;
+  color:#c3d1e4;
+  margin:12px 0;
+}
+.dot {
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  margin-right:5px;
+}
+footer {
+  text-align:center;
+  color:#91a8c5;
+  padding:20px;
+  font-size:12px;
+}
+@media(max-width:600px) {
+  .container { padding:10px }
+  .panel { padding:13px }
+  header h1 { font-size:21px }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>YOUNG'S DOUBLE-SLIT EXPERIMENT</h1>
+  <p>Advanced Virtual Physics Laboratory | Engineering Physics</p>
+</header>
+
+<main class="container">
+
+<!-- EXPERIMENT SETUP -->
+<section class="panel">
+  <h2>1. Experimental Arrangement</h2>
+  <p class="muted">
+    Monochromatic light illuminates two closely spaced coherent
+    slits. The emerging waves overlap and produce interference
+    fringes on the observation screen.
+  </p>
+
+  <div class="setup-wrap">
+    <svg viewBox="0 0 1000 420" role="img"
+         aria-label="Young double slit experimental arrangement">
+
+      <defs>
+        <marker id="arrow" markerWidth="7" markerHeight="7"
+          refX="5" refY="3" orient="auto">
+          <path d="M0 0 L6 3 L0 6" fill="none"
+            stroke="#263b55" stroke-width="1"/>
+        </marker>
+      </defs>
+
+      <!-- Source -->
+      <rect x="35" y="165" width="105" height="76"
+        rx="9" fill="#243b5a" stroke="#1a2c43" stroke-width="2"/>
+      <circle id="sourceCore" cx="88" cy="203" r="19"
+        fill="#f8d36a" stroke="#a87a16" stroke-width="3"/>
+      <path id="sourceCross" d="M88 180 V226 M65 203 H111"
+        stroke="#fff4bc" stroke-width="2"/>
+      <text x="88" y="265" font-size="16"
+        text-anchor="middle" fill="#172a42" font-weight="bold">
+        Light Source
+      </text>
+      <text x="88" y="284" font-size="12"
+        text-anchor="middle" fill="#334a65">S₀</text>
+
+      <!-- Incident beam -->
+      <path id="incidentBeam" d="M140 190 L395 174 L395 232 L140 216 Z"
+        fill="#f5c94c" opacity=".23"/>
+      <path id="incidentRay" d="M140 203 L395 203"
+        stroke="#e7a927" stroke-width="3" stroke-dasharray="8 5"/>
+
+      <!-- Double slit barrier -->
+      <rect x="390" y="55" width="16" height="300"
+        fill="#64748b"/>
+      <rect id="slitOne" x="388" y="157" width="20" height="9"
+        fill="#f3f7fc"/>
+      <rect id="slitTwo" x="388" y="239" width="20" height="9"
+        fill="#f3f7fc"/>
+      <text x="398" y="32" font-size="16"
+        text-anchor="middle" fill="#172a42" font-weight="bold">
+        Double-Slit Barrier
+      </text>
+      <text id="slitOneLabel" x="365" y="151" font-size="15"
+        text-anchor="end" fill="#172a42">S₁</text>
+      <text id="slitTwoLabel" x="365" y="257" font-size="15"
+        text-anchor="end" fill="#172a42">S₂</text>
+
+      <!-- Slit distance -->
+      <line id="slitDimension" x1="445" y1="161" x2="445" y2="244"
+        stroke="#263b55" stroke-width="1.5"
+        marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <text id="slitDimensionLabel" x="456" y="208" font-size="14"
+        fill="#172a42">d</text>
+
+      <!-- Emerging waves -->
+      <g id="wavePaths" stroke="#1d9ed0" stroke-width="2" fill="none">
+        <path id="wavePathOne" d="M406 161 Q550 161 680 203 Q550 245 406 245"/>
+        <path id="wavePathTwo" d="M406 161 Q520 90 680 203"/>
+        <path id="wavePathThree" d="M406 245 Q520 316 680 203"/>
+      </g>
+
+      <path id="pathDifferenceRay" d="M406 161 L820 203 L406 245"
+        stroke="#d49a27" stroke-width="1.5"
+        stroke-dasharray="7 5" fill="none"/>
+
+      <!-- Screen -->
+      <rect id="screenFrame" x="825" y="48" width="19" height="310"
+        rx="3" fill="#243b5a"/>
+      <rect id="screenFace" x="829" y="55" width="8" height="296"
+        fill="#dceeff"/>
+      <g id="arrangementFringes" opacity=".95"></g>
+      <text id="screenTitle" x="835" y="32" font-size="16"
+        text-anchor="middle" fill="#172a42" font-weight="bold">
+        Screen
+      </text>
+
+      <!-- Screen centre -->
+      <line id="screenCentreLine" x1="805" y1="203" x2="858" y2="203"
+        stroke="#e4a52c" stroke-width="2"/>
+      <text id="screenCentreLabel" x="866" y="208" font-size="13"
+        fill="#172a42">O</text>
+
+      <!-- Distance D -->
+      <line id="distanceDimension" x1="410" y1="390" x2="825" y2="390"
+        stroke="#263b55" stroke-width="1.5"
+        marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+      <text id="distanceDimensionText" x="617" y="383" text-anchor="middle"
+        font-size="17" fill="#172a42" font-weight="bold">
+        D = <tspan id="svgD">1.00 m</tspan>
+      </text>
+
+      <text x="500" y="345" font-size="13"
+        text-anchor="middle" fill="#334a65">
+        Overlapping light waves
+      </text>
+      <text x="500" y="363" font-size="11"
+        text-anchor="middle" fill="#64748b">
+        Constructive and destructive interference
+      </text>
+    </svg>
+  </div>
+
+  <div class="note" style="margin-top:12px">
+    S₀ = Light source; S₁ and S₂ = Coherent slits;
+    d = Slit separation; D = Distance from slits to screen;
+    O = Central point on the screen.
+    The diagram is schematic and not drawn to scale.
+  </div>
+</section>
+
+<!-- CONTROLS -->
+<section class="panel">
+  <h2>2. Experiment Control Panel</h2>
+  <p class="muted">
+    Change the experimental parameters and observe how the
+    interference pattern and intensity distribution respond.
+  </p>
+
+  <div class="controls">
+
+    <div class="control">
+      <label>Wavelength (λ)
+        <strong id="waveLabel">600 nm</strong>
+      </label>
+      <input id="wave" type="range"
+        min="100" max="2000" value="600" step="1">
+      <input id="waveNumber" type="number"
+        min="1" max="10000" value="600">
+      <div class="unit">Slider: 100–2000 nm.
+        Numeric entry: 1–10000 nm.</div>
+    </div>
+
+    <div class="control">
+      <label>Slit Separation (d)
+        <strong id="slitLabel">0.50 mm</strong>
+      </label>
+      <input id="slit" type="range"
+        min="0.05" max="2" value="0.5" step="0.01">
+      <input id="slitNumber" type="number"
+        min="0.01" max="10" value="0.5" step="0.01">
+      <div class="unit">Numeric entry in millimetres.</div>
+    </div>
+
+    <div class="control">
+      <label>Screen Distance (D)
+        <strong id="distanceLabel">1.00 m</strong>
+      </label>
+      <input id="distance" type="range"
+        min="0.1" max="10" value="1" step="0.1">
+      <input id="distanceNumber" type="number"
+        min="0.01" max="100" value="1" step="0.01">
+      <div class="unit">Numeric entry in metres.</div>
+    </div>
+
+    <div class="control">
+      <label>Observation Screen Width
+        <strong id="scaleLabel">20 mm</strong>
+      </label>
+      <input id="scale" type="range"
+        min="2" max="100" value="20" step="1">
+      <div class="unit">
+        Total visible horizontal region in millimetres.
+      </div>
+    </div>
+
+  </div>
+
+  <br>
+  <button id="reset">Reset Experiment</button>
+</section>
+
+<!-- SCREEN -->
+<section class="panel">
+  <h2>3. Interference Pattern on Observation Screen</h2>
+  <p class="muted">
+    The vertical bright and dark bands represent the distribution
+    of light intensity across the observation screen.
+  </p>
+  <div class="legend">
+    <span><i class="dot" style="background:white"></i>Bright fringe</span>
+    <span><i class="dot" style="background:#101522"></i>Dark fringe</span>
+    <span>Centre = Central maximum</span>
+  </div>
+  <canvas id="screen" width="1100" height="260"></canvas>
+  <p class="muted" id="screenInfo"></p>
+</section>
+
+<!-- INTENSITY GRAPH -->
+<section class="panel">
+  <h2>4. Intensity Distribution Graph</h2>
+  <p class="muted">
+    This graph plots normalized intensity against the transverse
+    position on the screen. The peaks represent bright fringes
+    and the minima represent dark fringes.
+  </p>
+  <canvas id="graph" width="1100" height="310"></canvas>
+  <p class="muted">
+    Vertical axis: Normalized intensity I/Imax (0 to 1).
+    Horizontal axis: Position y on the screen (mm).
+  </p>
+</section>
+
+<!-- RESULTS -->
+<section class="panel">
+  <h2>5. Calculated Experimental Results</h2>
+
+  <div class="result-grid">
+    <div class="metric">
+      <small>Fringe Width (β)</small>
+      <strong id="beta">1.200 mm</strong>
+    </div>
+    <div class="metric">
+      <small>Wavelength in SI Units</small>
+      <strong id="lambdaSI">6.00 × 10⁻⁷ m</strong>
+    </div>
+    <div class="metric">
+      <small>Slit Separation</small>
+      <strong id="slitSI">5.00 × 10⁻⁴ m</strong>
+    </div>
+    <div class="metric">
+      <small>Screen Distance</small>
+      <strong id="distanceSI">1.00 m</strong>
+    </div>
+  </div>
+
+  <div class="formula">
+    β = λD / d
+  </div>
+
+  <div class="note" id="calculation"></div>
+</section>
+
+<!-- PRINCIPLE -->
+<section class="panel">
+  <h2>6. Working Principle</h2>
+  <p class="muted">
+    When two coherent light waves from S₁ and S₂ overlap,
+    their superposition produces alternate maxima and minima.
+  </p>
+  <h3>Constructive Interference</h3>
+  <p class="muted">
+    Path difference = nλ. The waves reinforce one another,
+    producing a bright fringe.
+  </p>
+  <h3>Destructive Interference</h3>
+  <p class="muted">
+    Path difference = (n + ½)λ. The waves cancel one another,
+    producing a dark fringe.
+  </p>
+  <h3>Ideal Intensity Equation</h3>
+  <div class="formula">
+    I(y) = Imax cos²(πdy / λD)
+  </div>
+  <p class="muted">
+    This model assumes two equally illuminated coherent slits
+    and uses the small-angle approximation. It does not include
+    the single-slit diffraction envelope.
+  </p>
+</section>
+
+<footer>
+  Young's Double-Slit Experiment | Virtual Engineering Physics Laboratory
+</footer>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const wave = $("wave");
+const waveNumber = $("waveNumber");
+const slit = $("slit");
+const slitNumber = $("slitNumber");
+const distance = $("distance");
+const distanceNumber = $("distanceNumber");
+const scale = $("scale");
+
+const screen = $("screen");
+const graph = $("graph");
+const sctx = screen.getContext("2d");
+const gctx = graph.getContext("2d");
+
+function formatSci(x) {
+  return x.toExponential(2)
+    .replace("e-"," × 10⁻")
+    .replace("e+"," × 10⁺");
+}
+
+function visibleColour(nm) {
+  if(nm < 380 || nm > 750) return null;
+
+  if(nm < 440) return [100,100,255];
+  if(nm < 490) return [45,100,255];
+  if(nm < 510) return [20,220,150];
+  if(nm < 550) return [65,255,75];
+  if(nm < 580) return [245,245,40];
+  if(nm < 620) return [255,155,30];
+  return [255,55,55];
+}
+
+function getParameters() {
+  const lambda = Number(waveNumber.value) * 1e-9;
+  const d = Number(slitNumber.value) * 1e-3;
+  const D = Number(distanceNumber.value);
+  const beta = lambda * D / d;
+
+  return {
+    lambda, d, D, beta,
+    betaMM: beta * 1000,
+    span: Number(scale.value)
+  };
+}
+
+function intensity(y, p) {
+  return Math.pow(
+    Math.cos(Math.PI * p.d * y / (p.lambda * p.D)), 2
+  );
+}
+
+function drawScreen(p) {
+  const w = screen.width;
+  const h = screen.height;
+  const data = sctx.createImageData(w,h);
+  const rgb = visibleColour(p.lambda * 1e9);
+
+  for(let x=0; x<w; x++) {
+    const yMM = ((x/w)-0.5)*p.span;
+    const I = intensity(yMM*1e-3,p);
+    const glow = 0.025 + 0.975*I;
+
+    for(let y=0; y<h; y++) {
+      const i = (y*w+x)*4;
+
+      if(rgb) {
+        data.data[i] = rgb[0]*glow;
+        data.data[i+1] = rgb[1]*glow;
+        data.data[i+2] = rgb[2]*glow;
+      } else {
+        data.data[i] = 235*glow;
+        data.data[i+1] = 240*glow;
+        data.data[i+2] = 255*glow;
+      }
+
+      data.data[i+3] = 255;
+    }
+  }
+
+  sctx.putImageData(data,0,0);
+
+  // Central position marker
+  sctx.strokeStyle = "#ffce58";
+  sctx.lineWidth = 2;
+  sctx.beginPath();
+  sctx.moveTo(w/2,0);
+  sctx.lineTo(w/2,h);
+  sctx.stroke();
+
+  sctx.fillStyle = "#ffdc79";
+  sctx.font = "15px Arial";
+  sctx.fillText("O",w/2+7,20);
+
+  $("screenInfo").textContent =
+    "Displayed region: −" + (p.span/2).toFixed(1) +
+    " mm to +" + (p.span/2).toFixed(1) +
+    " mm. Calculated fringe width: " +
+    p.betaMM.toFixed(4) + " mm.";
+}
+
+function drawGraph(p) {
+  const w = graph.width;
+  const h = graph.height;
+
+  const left = 75, right = 25, top = 20, bottom = 55;
+  const plotW = w-left-right;
+  const plotH = h-top-bottom;
+
+  const xMin = -p.span/2;
+  const xMax = p.span/2;
+
+  gctx.clearRect(0,0,w,h);
+  gctx.fillStyle = "#020611";
+  gctx.fillRect(0,0,w,h);
+
+  // Grid
+  gctx.strokeStyle = "#263c57";
+  gctx.lineWidth = 1;
+
+  for(let j=0;j<=5;j++) {
+    const y = top + plotH*j/5;
+    gctx.beginPath();
+    gctx.moveTo(left,y);
+    gctx.lineTo(w-right,y);
+    gctx.stroke();
+
+    gctx.fillStyle = "#d4e1f3";
+    gctx.font = "13px Arial";
+    gctx.textAlign = "right";
+    gctx.fillText((1-j/5).toFixed(1),left-12,y+4);
+  }
+
+  for(let j=0;j<=8;j++) {
+    const x = left + plotW*j/8;
+    gctx.beginPath();
+    gctx.moveTo(x,top);
+    gctx.lineTo(x,top+plotH);
+    gctx.stroke();
+
+    const value = xMin+(xMax-xMin)*j/8;
+    gctx.fillStyle = "#d4e1f3";
+    gctx.textAlign = "center";
+    gctx.fillText(value.toFixed(1),x,h-30);
+  }
+
+  // Axis titles
+  gctx.fillStyle = "#b9cbe1";
+  gctx.font = "14px Arial";
+  gctx.textAlign = "center";
+  gctx.fillText("Screen position y (mm)",left+plotW/2,h-7);
+
+  gctx.save();
+  gctx.translate(18,top+plotH/2);
+  gctx.rotate(-Math.PI/2);
+  gctx.fillText("Normalized intensity I / Imax",0,0);
+  gctx.restore();
+
+  // Intensity curve
+  gctx.beginPath();
+
+  for(let px=0;px<=plotW;px++) {
+    const yMM = xMin+(px/plotW)*(xMax-xMin);
+    const I = intensity(yMM*1e-3,p);
+    const py = top+(1-I)*plotH;
+
+
+    if(px===0) gctx.moveTo(left+px,py);
+    else gctx.lineTo(left+px,py);
+  }
+
+  gctx.strokeStyle = "#51d9ff";
+  gctx.lineWidth = 3;
+  gctx.stroke();
+
+  // Central maximum marker
+  const centreX = left + plotW/2;
+  gctx.strokeStyle = "#ffcf57";
+  gctx.setLineDash([5,5]);
+  gctx.beginPath();
+  gctx.moveTo(centreX,top);
+  gctx.lineTo(centreX,top+plotH);
+  gctx.stroke();
+  gctx.setLineDash([]);
+
+  gctx.fillStyle = "#ffcf57";
+  gctx.textAlign = "center";
+  gctx.font = "12px Arial";
+  gctx.fillText("Central maximum",centreX,top+14);
+}
+
+
+function rgbToHex(rgb) {
+  return "#" + rgb.map(v => Math.round(v).toString(16).padStart(2,"0")).join("");
+}
+
+/* Keep the experimental arrangement visually linked to the live controls.
+   The drawing remains schematic; the screen position uses a compressed scale
+   so the full numeric range remains visible inside the SVG. */
+function updateArrangement(p) {
+  const nm = p.lambda * 1e9;
+  const rgb = visibleColour(nm);
+  const light = rgb ? rgbToHex(rgb) : "#dceeff";
+  const glow = rgb ? `rgba(${rgb.join(",")},0.22)` : "rgba(190,215,255,0.22)";
+
+  $("sourceCore").setAttribute("fill", light);
+  $("sourceCore").setAttribute("stroke", light);
+  $("sourceCross").setAttribute("stroke", "#ffffff");
+  $("incidentBeam").setAttribute("fill", glow);
+  $("incidentRay").setAttribute("stroke", light);
+
+  // Slit separation is shown by changing the actual gap between the two slits.
+  const gap = 30 + (Math.log10(Math.max(0.01,p.d*1000)/0.01) / 3) * 90;
+  const y1 = 203 - gap/2;
+  const y2 = 203 + gap/2;
+  $("slitOne").setAttribute("y", y1-4.5);
+  $("slitTwo").setAttribute("y", y2-4.5);
+  $("slitOneLabel").setAttribute("y", y1-9);
+  $("slitTwoLabel").setAttribute("y", y2+15);
+  $("slitDimension").setAttribute("y1", y1);
+  $("slitDimension").setAttribute("y2", y2);
+  $("slitDimensionLabel").setAttribute("y", 203+5);
+  $("slitDimensionLabel").textContent = "d = " + (p.d*1e6).toFixed(0) + " µm";
+
+  // Move the observation screen as D changes (logarithmic schematic scale).
+  const screenX = Math.max(570,Math.min(900,790 + 90*Math.log10(p.D)));
+  const faceX = screenX + 4;
+  $("screenFrame").setAttribute("x",screenX);
+  $("screenFace").setAttribute("x",faceX);
+  $("screenTitle").setAttribute("x",screenX+9.5);
+  $("screenCentreLine").setAttribute("x1",screenX-20);
+  $("screenCentreLine").setAttribute("x2",screenX+33);
+  $("screenCentreLabel").setAttribute("x",screenX+41);
+  $("distanceDimension").setAttribute("x2",screenX);
+  $("distanceDimensionText").setAttribute("x",(410+screenX)/2);
+
+  // Update rays/wave paths so they terminate at the moved screen.
+  const mid = screenX-145;
+  $("wavePathOne").setAttribute("d",
+    `M406 ${y1} Q${mid} ${y1} ${screenX-145} 203 Q${mid} ${y2} 406 ${y2}`);
+  $("wavePathTwo").setAttribute("d",
+    `M406 ${y1} Q${mid-35} 90 ${screenX-145} 203`);
+  $("wavePathThree").setAttribute("d",
+    `M406 ${y2} Q${mid-35} 316 ${screenX-145} 203`);
+  $("pathDifferenceRay").setAttribute("d",
+    `M406 ${y1} L${screenX-5} 203 L406 ${y2}`);
+
+  // Add a small live fringe pattern to the screen face. Its spacing follows β.
+  const group = $("arrangementFringes");
+  group.innerHTML = "";
+  const betaPx = Math.max(2,Math.min(296,p.betaMM*296/p.span));
+  const fringeCount = Math.min(45,Math.ceil(296/betaPx)+2);
+  for(let n=-fringeCount;n<=fringeCount;n++) {
+    const y = 203 + n*betaPx;
+    if(y < 57 || y > 349) continue;
+    const band = document.createElementNS("http://www.w3.org/2000/svg","rect");
+    band.setAttribute("x",faceX);
+    band.setAttribute("y",y-1.4);
+    band.setAttribute("width",8);
+    band.setAttribute("height",2.8);
+    band.setAttribute("fill",light);
+    band.setAttribute("opacity",n===0 ? "1" : "0.78");
+    group.appendChild(band);
+  }
+
+  $("svgD").textContent = p.D.toFixed(2)+" m";
+}
+
+function update() {
+  const p = getParameters();
+
+  $("waveLabel").textContent = waveNumber.value + " nm";
+  $("slitLabel").textContent =
+    Number(slitNumber.value).toFixed(2)+" mm";
+  $("distanceLabel").textContent =
+    Number(distanceNumber.value).toFixed(2)+" m";
+  $("scaleLabel").textContent = scale.value+" mm";
+
+  updateArrangement(p);
+
+  $("beta").textContent = p.betaMM.toFixed(5)+" mm";
+  $("lambdaSI").textContent = formatSci(p.lambda)+" m";
+  $("slitSI").textContent = formatSci(p.d)+" m";
+  $("distanceSI").textContent = p.D.toFixed(3)+" m";
+
+  $("calculation").textContent =
+    "β = (λ × D) / d = (" +
+    formatSci(p.lambda)+" × "+p.D.toFixed(3)+
+    ") / "+formatSci(p.d)+" = "+
+    formatSci(p.beta)+" m = "+
+    p.betaMM.toFixed(5)+" mm.";
+
+  drawScreen(p);
+  drawGraph(p);
+}
+
+function bindPair(slider,number,min,max,step) {
+  slider.addEventListener("input",()=>{
+    number.value = slider.value;
+    update();
+  });
+
+  number.addEventListener("change",()=>{
+    let v = Number(number.value);
+    if(!Number.isFinite(v)) v = Number(slider.value);
+    v = Math.max(min,Math.min(max,v));
+    v = Math.round(v/step)*step;
+    number.value = v;
+    slider.value = Math.max(
+      Number(slider.min),
+      Math.min(Number(slider.max),v)
+    );
+    update();
+  });
+}
+
+bindPair(wave,waveNumber,1,10000,1);
+bindPair(slit,slitNumber,0.01,10,0.01);
+bindPair(distance,distanceNumber,0.01,100,0.01);
+
+scale.addEventListener("input",update);
+
+$("reset").addEventListener("click",()=>{
+  wave.value = 600;
+  waveNumber.value = 600;
+  slit.value = 0.5;
+  slitNumber.value = 0.5;
+  distance.value = 1;
+  distanceNumber.value = 1;
+  scale.value = 20;
+  update();
+});
+
+update();
+</script>
+
+</body>
+</html>
